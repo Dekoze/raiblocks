@@ -23,3 +23,6 @@
 
 # IDEs
 .idea
+
+# Doxygen Output
+html/
