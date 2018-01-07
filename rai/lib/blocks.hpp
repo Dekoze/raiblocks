@@ -13,7 +13,7 @@ std::string to_string_hex (uint64_t);
 bool from_string_hex (std::string const &, uint64_t &);
 // We operate on streams of uint8_t by convention
 using stream = std::basic_streambuf <uint8_t>;
-// Read a raw byte stream the size of `T' and fill value.
+/** Read a raw byte stream the size of `T' and fill value. */
 template <typename T>
 bool read (rai::stream & stream_a, T & value)
 {
@@ -41,17 +41,17 @@ enum class block_type : uint8_t
 class block
 {
 public:
-	// Return a digest of the hashables in this block.
+	/** Return a digest of the hashables in this block. */
 	rai::block_hash hash () const;
 	std::string to_json ();
 	virtual void hash (blake2b_state &) const = 0;
 	virtual uint64_t block_work () const = 0;
 	virtual void block_work_set (uint64_t) = 0;
-	// Previous block in account's chain, zero for open block
+	/** Previous block in account's chain, zero for open block. */
 	virtual rai::block_hash previous () const = 0;
-	// Source block for open/receive blocks, zero otherwise.
+	/** Source block for open/receive blocks, zero otherwise. */
 	virtual rai::block_hash source () const = 0;
-	// Previous block or account number for open blocks
+	/** Previous block or account number for open blocks. */
 	virtual rai::block_hash root () const = 0;
 	virtual rai::account representative () const = 0;
 	virtual void serialize (rai::stream &) const = 0;

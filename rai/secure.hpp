@@ -38,7 +38,8 @@ public:
 	bool operator () (std::shared_ptr <rai::block> const &, std::shared_ptr <rai::block> const &) const;
 };
 std::unique_ptr <rai::block> deserialize_block (MDB_val const &);
-// Latest information about an account
+
+/** Latest information about an account. */
 class account_info
 {
 public:
@@ -86,7 +87,8 @@ public:
 	MDB_cursor * cursor;
 	rai::store_entry current;
 };
-// Information on an uncollected send, source account, amount, target account.
+
+/** Information on an uncollected send, source account, amount, target account. */
 class pending_info
 {
 public:
@@ -150,19 +152,19 @@ public:
 	void serialize (rai::stream &, rai::block_type);
 	void serialize (rai::stream &);
 	std::string to_json () const;
-	// Vote round sequence number
+	/** Voting round sequence number. */
 	uint64_t sequence;
 	std::shared_ptr <rai::block> block;
-	// Account that's voting
+	/** Account that's voting. */
 	rai::account account;
-	// Signature of sequence + block hash
+	/** Signature of sequence + block hash. */
 	rai::signature signature;
 };
 enum class vote_code
 {
-	invalid, // Vote is not signed correctly
-	replay, // Vote does not have the highest sequence number, it's a replay
-	vote // Vote has the highest sequence number
+	invalid, //!< Vote is not signed correctly.
+	replay, //!< Vote does not have the highest sequence number, it's a replay.
+	vote //!< Vote has the highest sequence number.
 };
 class vote_result
 {
@@ -248,13 +250,13 @@ public:
 	void checksum_del (MDB_txn *, uint64_t, uint8_t);
 	
 	rai::vote_result vote_validate (MDB_txn *, std::shared_ptr <rai::vote>);
-	// Return latest vote for an account from store
+	/** Return latest vote for an account from store. */
 	std::shared_ptr <rai::vote> vote_get (MDB_txn *, rai::account const &);
-	// Populate vote with the next sequence number
+	/** Populate vote with the next sequence number. */
 	std::shared_ptr <rai::vote> vote_generate (MDB_txn *, rai::account const &, rai::raw_key const &, std::shared_ptr <rai::block>);
-	// Return either vote or the stored vote with a higher sequence number
+	/** Return either vote or the stored vote with a higher sequence number. */
 	std::shared_ptr <rai::vote> vote_max (MDB_txn *, std::shared_ptr <rai::vote>);
-	// Return latest vote for an account considering the vote cache
+	/** Return latest vote for an account considering the vote cache. */
 	std::shared_ptr <rai::vote> vote_current (MDB_txn *, rai::account const &);
 	void flush (MDB_txn *);
 	rai::store_iterator vote_begin (MDB_txn *);
@@ -278,48 +280,48 @@ public:
 	void clear (MDB_dbi);
 	
 	rai::mdb_env environment;
-	// block_hash -> account                                        // Maps head blocks to owning account
+	/** Maps head blocks to owning account. block_hash -> account. */
 	MDB_dbi frontiers;
-	// account -> block_hash, representative, balance, timestamp    // Account to head block, representative, balance, last_change
+	/** Maps account to head block, representative, balance, last_change. account -> block_hash, representative, balance, timestamp. */
 	MDB_dbi accounts;
-	// block_hash -> send_block
+	/** Maps block hashes to send block data. block_hash -> send_block. */
 	MDB_dbi send_blocks;
-	// block_hash -> receive_block
+	/** Maps block hashes to receive block data. block_hash -> receive_block. */
 	MDB_dbi receive_blocks;
-	// block_hash -> open_block
+	/** Maps block hashes to open block data. block_hash -> open_block. */
 	MDB_dbi open_blocks;
-	// block_hash -> change_block
+	/** Maps block hashes to change block data. block_hash -> change_block. */
 	MDB_dbi change_blocks;
-	// block_hash -> sender, amount, destination                    // Pending blocks to sender account, amount, destination account
+	/** Maps pending blocks to sender account, amount, destination account. block_hash -> sender, amount, destination. */
 	MDB_dbi pending;
-	// block_hash -> account, balance                               // Blocks info
+	/** Maps block hashes to account balances. block_hash -> account, balance. */
 	MDB_dbi blocks_info;
-	// account -> weight                                            // Representation
+	/** Maps accounts to represetative weight. account -> weight. */
 	MDB_dbi representation;
-	// block_hash -> block                                          // Unchecked bootstrap blocks
+	/** Maps block hashes to unchecked bootstrap blocks. block_hash -> block. */
 	MDB_dbi unchecked;
-	// block_hash ->                                                // Blocks that haven't been broadcast
+	/** Maps block hashes to blocks that haven't been broadcasted. block_hash -> block. */
 	MDB_dbi unsynced;
-	// (uint56_t, uint8_t) -> block_hash                            // Mapping of region to checksum
+	/** Mapping of region to checksum. (uint56_t, uint8_t) -> block_hash. */
 	MDB_dbi checksum;
-	// account -> uint64_t											// Highest vote observed for account
+	/** Maps account to highest vote observed. account -> uint64_t. */
 	MDB_dbi vote;
-	// uint256_union -> ?											// Meta information about block store
+	/** Contains meta information about block store. uint256_union -> ?. */
 	MDB_dbi meta;
 };
 enum class process_result
 {
-	progress, // Hasn't been seen before, signed correctly
-	bad_signature, // Signature was bad, forged or transmission error
-	old, // Already seen and was valid
-	overspend, // Malicious attempt to overspend
-	fork, // Malicious fork based on previous
-	unreceivable, // Source block doesn't exist or has already been received
-	gap_previous, // Block marked as previous is unknown
-	gap_source, // Block marked as source is unknown
-	not_receive_from_send, // Receive does not have a send source
-	account_mismatch, // Account number in open block doesn't match send destination
-	opened_burn_account // The impossible happened, someone found the private key associated with the public key '0'.
+	progress, //!< Hasn't been seen before, signed correctly.
+	bad_signature, //!< Signature was bad, forged or transmission error.
+	old, //!< Already seen and was valid.
+	overspend, //!< Malicious attempt to overspend.
+	fork, //!< Malicious fork based on previous.
+	unreceivable, //!< Source block doesn't exist or has already been received.
+	gap_previous, //!< Block marked as previous is unknown.
+	gap_source, //!< Block marked as source is unknown.
+	not_receive_from_send, //!< Receive does not have a send source.
+	account_mismatch, //!< Account number in open block doesn't match send destination.
+	opened_burn_account //!< The impossible happened, someone found the private key associated with the public key '0'.
 };
 class process_return
 {
@@ -339,9 +341,9 @@ class votes
 public:
 	votes (std::shared_ptr <rai::block>);
 	rai::tally_result vote (std::shared_ptr <rai::vote>);
-	// Root block of fork
+	/** Root block of fork. */
 	rai::block_hash id;
-	// All votes received by account
+	/** All votes received by account. */
 	std::unordered_map <rai::account, std::shared_ptr <rai::block>> rep_votes;
 };
 class ledger
@@ -349,7 +351,7 @@ class ledger
 public:
 	ledger (rai::block_store &, rai::uint128_t const & = 0);
 	std::pair <rai::uint128_t, std::shared_ptr <rai::block>> winner (MDB_txn *, rai::votes const & votes_a);
-	// Map of weight -> associated block, ordered greatest to least
+	/** Map of weight -> associated block, ordered greatest to least. */
 	std::map <rai::uint128_t, std::shared_ptr <rai::block>, std::greater <rai::uint128_t>> tally (MDB_txn *, rai::votes const &);
 	rai::account account (MDB_txn *, rai::block_hash const &);
 	rai::uint128_t amount (MDB_txn *, rai::block_hash const &);
@@ -389,9 +391,9 @@ extern std::string const & genesis_block;
 extern rai::account const & genesis_account;
 extern rai::account const & burn_account;
 extern rai::uint128_t const & genesis_amount;
-// A block hash that compares inequal to any real block hash
+/** A block hash that compares inequal to any real block hash. */
 extern rai::block_hash const & not_a_block;
-// An account number that compares inequal to any real account number
+/** An account number that compares inequal to any real account number. */
 extern rai::block_hash const & not_an_account;
 class genesis
 {
