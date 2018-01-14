@@ -44,15 +44,15 @@ class election : public std::enable_shared_from_this <rai::election>
 public:
 	election (MDB_txn *, rai::node &, std::shared_ptr <rai::block>, std::function <void (std::shared_ptr <rai::block>)> const &);
 	void vote (std::shared_ptr <rai::vote>);
-	// Check if we have vote quorum
+	/** Checks if we have vote quorum. */
 	bool have_quorum (MDB_txn *);
-	// Tell the network our view of the winner
+	/** Tells the network our view of the winner. */
 	void broadcast_winner ();
-	// Change our winner to agree with the network
+	/** Changes our winner to agree with the network. */
 	void compute_rep_votes (MDB_txn *);
-	// Confirmation method 1, uncontested quorum
+	/** Confirmation method 1, uncontested quorum. */
 	void confirm_if_quorum (MDB_txn *);
-	// Confirmation method 2, settling time
+	/** Confirmation method 2, settling time. */
 	void confirm_cutoff (MDB_txn *);
 	rai::uint128_t quorum_threshold (MDB_txn *, rai::ledger &);
 	rai::uint128_t minimum_threshold (MDB_txn *, rai::ledger &);
@@ -67,20 +67,19 @@ class conflict_info
 public:
 	rai::block_hash root;
 	std::shared_ptr <rai::election> election;
-	// Number of announcements in a row for this fork
+	/** Number of announcements in a row for this fork. */
 	unsigned announcements;
 };
-// Core class for determining concensus
-// Holds all active blocks i.e. recently added blocks that need confirmation
+/** Core class for determining concensus. Holds all active blocks i.e. recently added blocks that need confirmation. */
 class active_transactions
 {
 public:
 	active_transactions (rai::node &);
-	// Start an election for a block
-	// Call action with confirmed block, may be different than what we started with
+	/** Starts an election for a block. Call action with confirmed block, may be different than what we started with. */
 	bool start (MDB_txn *, std::shared_ptr <rai::block>, std::function <void (std::shared_ptr <rai::block>)> const & = [] (std::shared_ptr <rai::block>) {});
+	/** Validates a vote and applies it to the current election if one exists. */
 	void vote (std::shared_ptr <rai::vote>);
-	// Is the root of this block in the roots container
+	/** Checks if the root of this block in the roots container. */
 	bool active (rai::block const &);
 	void announce_votes ();
 	void stop ();
@@ -94,9 +93,9 @@ public:
 	> roots;
 	rai::node & node;
 	std::mutex mutex;
-	// Maximum number of conflicts to vote on per interval, lowest root hash first
+	/** Maximum number of conflicts to vote on per interval, lowest root hash first. */
 	static unsigned constexpr announcements_per_interval = 32;
-	// After this many successive vote announcements, block is confirmed
+	/** After this many successive vote announcements, block is confirmed. */
 	static unsigned constexpr contigious_announcements = 4;
 	static unsigned constexpr announce_interval_ms = (rai::rai_network == rai::rai_networks::rai_test_network) ? 10 : 16000;
 };
@@ -173,31 +172,33 @@ class peer_container
 {
 public:
 	peer_container (rai::endpoint const &);
-	// We were contacted by endpoint, update peers
+	/** We were contacted by endpoint, update peers. */
 	void contacted (rai::endpoint const &, unsigned);
-	// Unassigned, reserved, self
+	/** Unassigned, reserved, self. */
 	bool not_a_peer (rai::endpoint const &);
-	// Returns true if peer was already known
+	/**
+	 *  @return true if peer was already known
+	 */
 	bool known_peer (rai::endpoint const &);
-	// Notify of peer we received from
+	/** Notify of peer we received from. */
 	bool insert (rai::endpoint const &, unsigned);
 	std::unordered_set <rai::endpoint> random_set (size_t);
 	void random_fill (std::array <rai::endpoint, 8> &);
-	// Request a list of the top known representatives
+	/** Request a list of the top known representatives. */
 	std::vector <peer_information> representatives (size_t);
-	// List of all peers
+	/** List of all peers. */
 	std::vector <rai::endpoint> list ();
 	std::map <rai::endpoint, unsigned> list_version ();
-	// A list of random peers with size the square root of total peer count
+	/** A list of random peers with size the square root of total peer count. */
 	std::vector <rai::endpoint> list_sqrt ();
-	// Get the next peer for attempting bootstrap
+	/** Get the next peer for attempting bootstrap. */
 	rai::endpoint bootstrap_peer ();
-	// Purge any peer where last_contact < time_point and return what was left
+	/** Purge any peer where last_contact < time_point and return what was left. */
 	std::vector <rai::peer_information> purge_list (std::chrono::system_clock::time_point const &);
 	std::vector <rai::endpoint> rep_crawl ();
 	bool rep_response (rai::endpoint const &, rai::amount const &);
 	void rep_request (rai::endpoint const &);
-	// Should we reach out to this endpoint with a keepalive message
+	/** Should we reach out to this endpoint with a keepalive message. */
 	bool reachout (rai::endpoint const &);
 	size_t size ();
 	size_t size_sqrt ();
@@ -227,10 +228,10 @@ public:
 			boost::multi_index::ordered_non_unique <boost::multi_index::member <peer_attempt, std::chrono::system_clock::time_point, &peer_attempt::last_attempt>>
 		>
 	> attempts;
-	// Called when a new peer is observed
+	/** Called when a new peer is observed. */
 	std::function <void (rai::endpoint const &)> peer_observer;
 	std::function <void ()> disconnect_observer;
-	// Number of peers to crawl for being a rep every period
+	/** Number of peers to crawl for being a rep every period. */
 	static size_t constexpr peers_per_crawl = 8;
 };
 class send_info
@@ -257,18 +258,21 @@ public:
 	void start ();
 	void stop ();
 	void refresh_devices ();
-	// Refresh when the lease ends
+	/** Refresh when the lease ends. */
 	void refresh_mapping ();
-	// Refresh ocassionally in case router loses mapping
+	/** Refresh ocassionally in case router loses mapping. */
 	void check_mapping_loop ();
 	int check_mapping ();
 	bool has_address ();
 	std::mutex mutex;
 	rai::node & node;
-	UPNPDev * devices; // List of all UPnP devices
-	UPNPUrls urls; // Something for UPnP
-	IGDdatas data; // Some other UPnP thing
-	// Primes so they infrequently happen at the same time
+	/** List of all UPnP devices. */
+	UPNPDev * devices;
+	/** Something for UPnP. */
+	UPNPUrls urls;
+	/** Some other UPnP thing. */
+	IGDdatas data;
+	/** Primes so they infrequently happen at the same time. */
 	static int constexpr mapping_timeout = rai::rai_network == rai::rai_networks::rai_test_network ? 53 : 3593;
 	static int constexpr check_timeout = rai::rai_network == rai::rai_networks::rai_test_network ? 17 : 53;
 	boost::asio::ip::address_v4 address;
@@ -291,8 +295,9 @@ public:
 	std::chrono::system_clock::time_point arrival;
 	rai::block_hash hash;
 };
-// This class tracks blocks that are probably live because they arrived in a UDP packet
-// This gives a fairly reliable way to differentiate between blocks being inserted via bootstrap or new, live blocks.
+/** This class tracks blocks that are probably live because they arrived in a UDP packet.
+ *  This gives a fairly reliable way to differentiate between blocks being inserted via bootstrap or new, live blocks.
+ */
 class block_arrival
 {
 public:
@@ -318,11 +323,18 @@ public:
 	void receive_action (boost::system::error_code const &, size_t);
 	void rpc_action (boost::system::error_code const &, size_t);
 	void rebroadcast_reps (std::shared_ptr <rai::block>);
+	/** Republish vote to the network.
+	 *  In order to rate limit network traffic we republish:\n
+	 *  1) Only if they are a non-replay vote of a block that's actively settling. Settling blocks are limited by block PoW.\n
+	 *  2) Only if a vote for this block hasn't been received in the previous X second.  This prevents rapid publishing of votes with increasing sequence numbers.\n
+	 *  3) The rep has a weight > Y to prevent creating a lot of small-weight accounts to send out votes.\n
+	 */
 	void republish_vote (std::chrono::system_clock::time_point const &, std::shared_ptr <rai::vote>);
 	void republish_block (MDB_txn *, std::shared_ptr <rai::block>);
 	void republish (rai::block_hash const &, std::shared_ptr <std::vector <uint8_t>>, rai::endpoint);
 	void publish_broadcast (std::vector <rai::peer_information> &, std::unique_ptr <rai::block>);
 	void confirm_send (rai::confirm_ack const &, std::shared_ptr <std::vector <uint8_t>>, rai::endpoint const &);
+	/** Send keepalives to all the peers we've been notified of. */
 	void merge_peers (std::array <rai::endpoint, 8> const &);
 	void send_keepalive (rai::endpoint const &);
 	void broadcast_confirm_req (std::shared_ptr <rai::block>);
@@ -438,7 +450,7 @@ public:
 	rai::vote_result vote (std::shared_ptr <rai::vote>, rai::endpoint);
 	rai::node & node;
 };
-// The network is crawled for representatives by ocassionally sending a unicast confirm_req for a specific block and watching to see if it's acknowledged with a vote.
+/** The network is crawled for representatives by ocassionally sending a unicast confirm_req for a specific block and watching to see if it's acknowledged with a vote. */
 class rep_crawler
 {
 public:
@@ -459,8 +471,7 @@ public:
 	std::function <void (MDB_txn *, rai::process_return, std::shared_ptr <rai::block>)> callback;
 	bool force;
 };
-// Processing blocks is a potentially long IO operation
-// This class isolates block insertion from other operations like servicing network operations
+/** This class isolates block insertion from other operations like servicing network operations since processing blocks is a potentially long IO operation. */
 class block_processor
 {
 public:

@@ -11,7 +11,7 @@
 
 namespace rai
 {
-// The fan spreads a key out over the heap to decrease the likelihood of it being recovered by memory inspection
+/** This class spreads a key out over the heap to decrease the likelihood of it being recovered by memory inspection. */
 class fan
 {
 public:
@@ -98,12 +98,19 @@ public:
 	static unsigned const version_2;
 	static unsigned const version_3;
 	static unsigned const version_current;
+	/** Wallet version number. */
 	static rai::uint256_union const version_special;
+	/** Key used to encrypt wallet keys, encrypted itself by the user password. */
 	static rai::uint256_union const wallet_key_special;
+	/** Random number used to salt private key encryption */
 	static rai::uint256_union const salt_special;
+	/** Check value used to see if password is valid. */
 	static rai::uint256_union const check_special;
+	/** Representative account to be used if we open a new account. */
 	static rai::uint256_union const representative_special;
+	/** Wallet seed for deterministic key generation. */
 	static rai::uint256_union const seed_special;
+	/** Current key index for deterministic keys. */
 	static rai::uint256_union const deterministic_index_special;
 	static int const special_count;
 	static unsigned const kdf_full_work = 64 * 1024;
@@ -114,7 +121,7 @@ public:
 	MDB_dbi handle;
 };
 class node;
-// A wallet is a set of account keys encrypted by a common encryption key
+/** A wallet is a set of account keys encrypted by a common encryption key. */
 class wallet : public std::enable_shared_from_this <rai::wallet>
 {
 public:
@@ -140,7 +147,9 @@ public:
 	rai::block_hash send_sync (rai::account const &, rai::account const &, rai::uint128_t const &);
 	void send_async (rai::account const &, rai::account const &, rai::uint128_t const &, std::function <void (std::shared_ptr <rai::block>)> const &, bool = true);
 	void work_generate (rai::account const &, rai::block_hash const &);
+	/** Update work for account if latest root is root_a. */
 	void work_update (MDB_txn *, rai::account const &, rai::block_hash const &, uint64_t);
+	/** Fetch work for root_a, use cached value if possible. */
 	uint64_t work_fetch (MDB_txn *, rai::account const &, rai::block_hash const &);
 	void work_ensure (MDB_txn *, rai::account const &);
 	bool search_pending ();
@@ -150,7 +159,7 @@ public:
 	rai::wallet_store store;
 	rai::node & node;
 };
-// The wallets set is all the wallets a node controls.  A node may contain multiple wallets independently encrypted and operated.
+/** The wallets set is all the wallets a node controls.  A node may contain multiple wallets independently encrypted and operated. */
 class wallets
 {
 public:

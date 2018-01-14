@@ -137,7 +137,6 @@ bool rai::shared_ptr_block_hash::operator () (std::shared_ptr <rai::block> const
 	return *lhs == *rhs;
 }
 
-// Sum the weights for each vote and return the winning block with its vote tally
 std::pair <rai::uint128_t, std::shared_ptr <rai::block>> rai::ledger::winner (MDB_txn * transaction_a, rai::votes const & votes_a)
 {
 	auto tally_l (tally (transaction_a, votes_a));
@@ -203,14 +202,12 @@ rai::tally_result rai::votes::vote (std::shared_ptr <rai::vote> vote_a)
 	return result;
 }
 
-// Create a new random keypair
 rai::keypair::keypair ()
 {
 	random_pool.GenerateBlock (prv.data.bytes.data (), prv.data.bytes.size ());
 	ed25519_publickey (prv.data.bytes.data (), pub.bytes.data ());
 }
 
-// Create a keypair given a hex string of the private key
 rai::keypair::keypair (std::string const & prv_a)
 {
 	auto error (prv.data.decode_hex (prv_a));
@@ -585,7 +582,7 @@ void rai::block_store::upgrade_v1_to_v2 (MDB_txn * transaction_a)
 	}
 }
 
-// Determine the representative for this block
+/** Determine the representative for this block. */
 class representative_visitor : public rai::block_visitor
 {
 public:
@@ -794,7 +791,7 @@ void rai::block_store::clear (MDB_dbi db_a)
 
 namespace
 {
-// Fill in our predecessors
+/** Fill in our predecessors. */
 class set_predecessor : public rai::block_visitor
 {
 public:
@@ -1737,7 +1734,7 @@ public:
 	{
 		result = block_a.previous ();
 	}
-	// Open blocks have no previous () so we use the account number
+	/** Open blocks have no previous () so we use the account number. */
 	void open_block (rai::open_block const & block_a) override
 	{
 		rai::transaction transaction (store.environment, nullptr, false);
@@ -1802,7 +1799,7 @@ public:
 	rai::process_return result;
 };
 
-// Determine the amount delta resultant from this block
+/** Determine the amount delta resultant from this block. */
 class amount_visitor : public rai::block_visitor
 {
 public:
@@ -1818,7 +1815,7 @@ public:
 	rai::uint128_t result;
 };
 
-// Determine the balance as of this block
+/** Determine the balance as of this block. */
 class balance_visitor : public rai::block_visitor
 {
 public:
@@ -1927,7 +1924,7 @@ void balance_visitor::change_block (rai::change_block const & block_a)
 	}
 }
 
-// Rollback this block
+/** Rollback this block. */
 class rollback_visitor : public rai::block_visitor
 {
 public:
@@ -2050,7 +2047,6 @@ void balance_visitor::compute (rai::block_hash const & block_hash)
 	}
 }
 
-// Balance for account containing hash
 rai::uint128_t rai::ledger::balance (MDB_txn * transaction_a, rai::block_hash const & hash_a)
 {
 	balance_visitor visitor (transaction_a, store);
@@ -2065,7 +2061,6 @@ rai::uint128_t rai::block_store::block_balance (MDB_txn * transaction_a, rai::bl
 	return visitor.result;
 }
 
-// Balance for an account by account number
 rai::uint128_t rai::ledger::account_balance (MDB_txn * transaction_a, rai::account const & account_a)
 {
 	rai::uint128_t result (0);
@@ -2097,7 +2092,6 @@ rai::process_return rai::ledger::process (MDB_txn * transaction_a, rai::block co
 	return processor.result;
 }
 
-// Money supply for heuristically calculating vote percentages
 rai::uint128_t rai::ledger::supply (MDB_txn * transaction_a)
 {
 	auto unallocated (account_balance (transaction_a, rai::genesis_account));
@@ -2145,13 +2139,11 @@ std::string rai::ledger::block_text (rai::block_hash const & hash_a)
 	return result;
 }
 
-// Vote weight of an account
 rai::uint128_t rai::ledger::weight (MDB_txn * transaction_a, rai::account const & account_a)
 {
 	return store.representation_get (transaction_a, account_a);
 }
 
-// Rollback blocks until `block_a' doesn't exist
 void rai::ledger::rollback (MDB_txn * transaction_a, rai::block_hash const & block_a)
 {
 	assert (store.block_exists (transaction_a, block_a));

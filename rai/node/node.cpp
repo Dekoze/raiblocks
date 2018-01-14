@@ -232,10 +232,6 @@ void rai::network::republish_block (MDB_txn * transaction, std::shared_ptr <rai:
 	}
 }
 
-// In order to rate limit network traffic we republish:
-// 1) Only if they are a non-replay vote of a block that's actively settling. Settling blocks are limited by block PoW
-// 2) Only if a vote for this block hasn't been received in the previous X second.  This prevents rapid publishing of votes with increasing sequence numbers.
-// 3) The rep has a weight > Y to prevent creating a lot of small-weight accounts to send out votes
 void rai::network::republish_vote (std::chrono::system_clock::time_point const & last_vote, std::shared_ptr <rai::vote> vote_a)
 {
 	if (last_vote < std::chrono::system_clock::now () - std::chrono::seconds (1))
@@ -470,7 +466,6 @@ void rai::network::receive_action (boost::system::error_code const & error, size
 	}
 }
 
-// Send keepalives to all the peers we've been notified of
 void rai::network::merge_peers (std::array <rai::endpoint, 8> const & peers_a)
 {
 	for (auto i (peers_a.begin ()), j (peers_a.end ()); i != j; ++i)
@@ -2366,7 +2361,6 @@ void rai::peer_container::random_fill (std::array <rai::endpoint, 8> & target_a)
 	}
 }
 
-// Request a list of the top known representatives
 std::vector <rai::peer_information> rai::peer_container::representatives (size_t count_a)
 {
 	std::vector <peer_information> result;
@@ -2891,7 +2885,6 @@ bool rai::active_transactions::start (MDB_txn * transaction_a, std::shared_ptr <
 	return existing != roots.end ();
 }
 
-// Validate a vote and apply it to the current election if one exists
 void rai::active_transactions::vote (std::shared_ptr <rai::vote> vote_a)
 {
 	std::shared_ptr <rai::election> election;

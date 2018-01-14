@@ -33,11 +33,11 @@ enum class payment_status
 {
 	not_a_status,
 	unknown,
-	nothing, // Timeout and nothing was received
+	nothing, //!< Timeout and nothing was received
 	//insufficient, // Timeout and not enough was received
 	//over, // More than requested received
 	//success_fork, // Amount received but it involved a fork
-	success // Amount received
+	success //!< Amount received
 };
 class wallet;
 class payment_observer;

@@ -26,7 +26,9 @@ namespace rai
 class keypair
 {
 public:
+	/** Create a new random keypair. */
 	keypair ();
+	/** Create a keypair given a hex string of the private key. */
 	keypair (std::string const &);
 	rai::public_key pub;
 	rai::raw_key prv;
@@ -350,14 +352,18 @@ class ledger
 {
 public:
 	ledger (rai::block_store &, rai::uint128_t const & = 0);
+	/** Sum the weights for each vote and return the winning block with its vote tally. */
 	std::pair <rai::uint128_t, std::shared_ptr <rai::block>> winner (MDB_txn *, rai::votes const & votes_a);
 	/** Map of weight -> associated block, ordered greatest to least. */
 	std::map <rai::uint128_t, std::shared_ptr <rai::block>, std::greater <rai::uint128_t>> tally (MDB_txn *, rai::votes const &);
 	rai::account account (MDB_txn *, rai::block_hash const &);
 	rai::uint128_t amount (MDB_txn *, rai::block_hash const &);
+	/** Balance for account containing hash. */
 	rai::uint128_t balance (MDB_txn *, rai::block_hash const &);
+	/** Balance for an account by account number. */
 	rai::uint128_t account_balance (MDB_txn *, rai::account const &);
 	rai::uint128_t account_pending (MDB_txn *, rai::account const &);
+	/** Vote weight of an account. */
 	rai::uint128_t weight (MDB_txn *, rai::account const &);
 	std::unique_ptr <rai::block> successor (MDB_txn *, rai::block_hash const &);
 	std::unique_ptr <rai::block> forked_block (MDB_txn *, rai::block const &);
@@ -368,8 +374,10 @@ public:
 	bool block_exists (rai::block_hash const &);
 	std::string block_text (char const *);
 	std::string block_text (rai::block_hash const &);
+	/** Money supply for heuristically calculating vote percentages. */
 	rai::uint128_t supply (MDB_txn *);
 	rai::process_return process (MDB_txn *, rai::block const &);
+	/** Rollback blocks until `block_a' doesn't exist. */
 	void rollback (MDB_txn *, rai::block_hash const &);
 	void change_latest (MDB_txn *, rai::account const &, rai::block_hash const &, rai::account const &, rai::uint128_union const &, uint64_t);
 	void checksum_update (MDB_txn *, rai::block_hash const &);

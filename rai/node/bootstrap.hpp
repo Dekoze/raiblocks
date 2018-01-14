@@ -26,11 +26,15 @@ class block_synchronization
 public:
 	block_synchronization (boost::log::sources::logger_mt &);
 	~block_synchronization ();
-	// Return true if target already has block
+	/**
+	 * @return true if target already has block
+	 */
 	virtual bool synchronized (MDB_txn *, rai::block_hash const &) = 0;
 	virtual std::unique_ptr <rai::block> retrieve (MDB_txn *, rai::block_hash const &) = 0;
 	virtual rai::sync_result target (MDB_txn *, rai::block const &) = 0;
-	// return true if all dependencies are synchronized
+	/**
+	 * @return true if all dependencies are synchronized
+	 */
 	bool add_dependency (MDB_txn *, rai::block const &);
 	void fill_dependencies (MDB_txn *);
 	rai::sync_result synchronize_one (MDB_txn *);

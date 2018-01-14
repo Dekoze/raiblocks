@@ -7,7 +7,7 @@
 
 namespace rai
 {
-// Lower priority of calling work generating thread
+/** Lower priority of calling work generating thread. */
 void work_thread_reprioritize ();
 template <typename ... T>
 class observer_set

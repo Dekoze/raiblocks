@@ -176,7 +176,6 @@ bool rai::uint256_union::operator == (rai::uint256_union const & other_a) const
 	return bytes == other_a.bytes;
 }
 
-// Construct a uint256_union = AES_ENC_CTR (cleartext, key, iv)
 void rai::uint256_union::encrypt (rai::raw_key const & cleartext, rai::raw_key const & key, uint128_union const & iv)
 {
 	CryptoPP::AES::Encryption alg (key.data.bytes.data (), sizeof (key.data.bytes));

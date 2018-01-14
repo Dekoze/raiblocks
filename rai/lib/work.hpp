@@ -35,7 +35,7 @@ public:
 	std::condition_variable producer_condition;
 	std::function <boost::optional<uint64_t> (rai::uint256_union const &)> opencl;
 	rai::observer_set <bool> work_observers;
-	// Local work threshold for rate-limiting publishing blocks. ~5 seconds of work.
+	/** Local work threshold for rate-limiting publishing blocks. ~5 seconds of work. */
 	static uint64_t const publish_test_threshold = 0xff00000000000000;
 	static uint64_t const publish_full_threshold = 0xffffffc000000000;
 	static uint64_t const publish_threshold = rai::rai_network == rai::rai_networks::rai_test_network ? publish_test_threshold : publish_full_threshold;

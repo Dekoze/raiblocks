@@ -5,8 +5,9 @@
 #include <cryptopp/osrng.h>
 
 namespace rai {
-// Random pool used by RaiBlocks.
-// This must be thread_local as long as the AutoSeededRandomPool implementation requires it
+/** Random pool used by RaiBlocks.
+ *  This must be thread_local as long as the AutoSeededRandomPool implementation requires it.
+ */
 extern thread_local CryptoPP::AutoSeededRandomPool random_pool;
 using uint128_t = boost::multiprecision::uint128_t;
 using uint256_t = boost::multiprecision::uint256_t;
@@ -56,6 +57,7 @@ union uint256_union
 	uint256_union (std::string const &);
 	uint256_union (uint64_t);
 	uint256_union (rai::uint256_t const &);
+	/** Encrypt using AES CTR mode. */
 	void encrypt (rai::raw_key const &, rai::raw_key const &, uint128_union const &);
 	uint256_union & operator ^= (rai::uint256_union const &);
 	uint256_union operator ^ (rai::uint256_union const &) const;

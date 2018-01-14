@@ -22,13 +22,13 @@ namespace rai
 {
 using bufferstream = boost::iostreams::stream_buffer <boost::iostreams::basic_array_source <uint8_t>>;
 using vectorstream = boost::iostreams::stream_buffer <boost::iostreams::back_insert_device <std::vector <uint8_t>>>;
-// OS-specific way of finding a path to a home directory.
+/** OS-specific way of finding a path to a home directory. */
 boost::filesystem::path working_path ();
-// Get a unique path within the home directory, used for testing
+/** Get a unique path within the home directory, used for testing. */
 boost::filesystem::path unique_path ();
-// C++ stream are absolutely horrible so I need this helper function to do the most basic operation of creating a file if it doesn't exist or truntacing it.
+/** C++ stream are absolutely horrible so I need this helper function to do the most basic operation of creating a file if it doesn't exist or truntacing it. */
 void open_or_create (std::fstream &, std::string const &);
-// Reads a json object from the stream and if was changed, write the object back to the stream
+/** Reads a json object from the stream and if was changed, write the object back to the stream. */
 template <typename T>
 bool fetch_object (T & object, std::iostream & stream_a)
 {
@@ -55,7 +55,7 @@ bool fetch_object (T & object, std::iostream & stream_a)
 	}
 	return error;
 }
-// Reads a json object from the stream and if was changed, write the object back to the stream
+/** Reads a json object from the stream and if was changed, write the object back to the stream. */
 template <typename T>
 bool fetch_object (T & object, boost::filesystem::path const & path_a, std::fstream & stream_a)
 {
